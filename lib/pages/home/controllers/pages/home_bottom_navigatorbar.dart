@@ -10,6 +10,8 @@ import 'package:xxxcloundclassroom/compents/keepalive.dart';
 import 'package:xxxcloundclassroom/pages/home/controllers/pages/home_index.dart';
 import 'package:xxxcloundclassroom/pages/home/controllers/pages/honorAndexamination/honor.dart';
 import 'package:xxxcloundclassroom/pages/home/controllers/pages/honorAndexamination/test.dart';
+import 'package:xxxcloundclassroom/pages/home/controllers/pages/learning_archives/study.dart';
+import 'package:xxxcloundclassroom/pages/home/controllers/pages/onlineText/onlineText.dart';
 
 class HomeBottmNavigatorBar extends StatefulWidget {
   const HomeBottmNavigatorBar({Key? key}) : super(key: key);
@@ -35,13 +37,13 @@ class _HomeBottmNavigatorBar extends State<HomeBottmNavigatorBar> {
       frame: HomeIndexPage(),
     ),
     KeepLivepage(
-      frame: HomeIndexPage(),
+      frame: StudyPage(),
     ),
     KeepLivepage(
       frame: HonorPage(),
     ),
     KeepLivepage(
-      frame: TestPage(),
+      frame: ExamPage(),
     )
   ];
   @override

@@ -42,8 +42,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
         AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     rightAnimationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     super.initState();
-    _videoPlayerController = VideoPlayerController.network(
-        "http://vfx.mtime.cn/Video/2021/07/10/mp4/210710171112971120.mp4")
+    _videoPlayerController = VideoPlayerController.asset("img/jyn.mp4")
       ..initialize().then((_value) {
         _videoPlayerController.play();
         videoController.d.value = _videoPlayerController.value.duration;

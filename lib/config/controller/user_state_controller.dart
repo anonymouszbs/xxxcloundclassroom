@@ -25,7 +25,7 @@ class UserStateController extends GetxController{
 
     CommonSpUtil.saveUserInfo(info: model.toMap());
 
-   // await DatabaseHelper().insertUserModel(model); d保存登录信息 先注释掉
+    await DatabaseHelper().insertUserModel(model); //d保存登录信息 先注释掉
     _currentUser.value = model;
   }
   //退出登录

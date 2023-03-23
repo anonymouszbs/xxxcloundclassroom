@@ -4,6 +4,7 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:xxxcloundclassroom/pages/reader/controller/controller.dart';
 const double _kHandleSize = 22.0;
 
 // Padding between the toolbar and the anchor.
@@ -69,7 +70,17 @@ class MyTextSelectionControls extends TextSelectionControls {
       handleSelectAll:
           canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
       handleLike: () {
-        print(delegate.textEditingValue.selection);
+
+          final TextEditingValue value = delegate.textEditingValue;
+
+    String data = value.selection.textInside(value.text);
+    // remove zeroWidthSpace
+    if (joinZeroWidthSpace) {
+      data = data.replaceAll(zeroWidthSpace, '');
+
+    }
+ReadController.current.saveWrite(data);
+        
         // launchUrl(Uri.parse(
         //     'mailto:zmtzawqlp@live.com?subject=extended_text_share&body=${delegate.textEditingValue.text}'));
         delegate.hideToolbar();
@@ -91,7 +102,7 @@ class MyTextSelectionControls extends TextSelectionControls {
       width: _kHandleSize,
       height: _kHandleSize,
       child: Image.asset(
-        'assets/40.png',
+        'img/40.png',
       ),
     );
 

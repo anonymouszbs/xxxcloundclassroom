@@ -60,22 +60,28 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     BotToast.closeAllLoading();
     initController();
     super.initState();
+    ReadController.current.context =  context;
     init();
   }
 
   @override
   void dispose() {
-    super.dispose();
-    if (bottomUIisopen == true) {
-      topUIanimationController.dispose();
-      bottomUIanimationController.dispose();
-      topUIoverlayEntry.dispose();
-      bottomUIoverlayEntry.dispose();
-      if (leftUIisopen == true) {
-        leftUIanimationController.dispose();
-        leftUIoverlayEntry.dispose();
+    if (_bottomUIopen == true) {
+      topUIoverlayEntry.remove();
+      bottomUIoverlayEntry.remove();
+      if(_leftUIopen==true){
+        leftUIoverlayEntry.remove();
       }
+      
+
+      // topUIanimationController.dispose();
+      // bottomUIanimationController.dispose();
+      // leftUIanimationController.dispose();
+        
+      
     }
+    super.dispose();
+    
   }
 
   initController() {
@@ -209,16 +215,28 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
                             height: ScreenUtil().screenHeight,
                             child: InkWell(
                               onTap: () {
-                                pageController.nextPage(
+
+                                int now = DateTime.now().millisecondsSinceEpoch;
+        if (now - lastBackPressedTime > 2000) {
+          lastBackPressedTime = now;
+
+          pageController.nextPage(
                                     duration: Duration(milliseconds: 300),
                                     curve: Curves.linear);
+
+        }else{
+           BotToast.showText(text: "别翻太快了");
+        }
+        
+                               
+                                
                               },
                             ),
                           ))
                     ],
                   )));
   }
-
+int lastBackPressedTime = 0;
   showTopOrBottom() {
     showbottomUI(context);
     showtopUI(context);
@@ -236,6 +254,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
         break;
       }
     }
+    ReadController.current.bookindex = currentindex;
     setState(() {});
   }
 

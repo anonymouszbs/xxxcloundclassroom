@@ -52,18 +52,6 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     Tab(text: '训练大纲'),
     Tab(text: '技能手册'),
   ];
-  final List<String> categories = <String>[
-    '食品',
-    '饮料',
-    '生鲜',
-    '家居',
-    '数码',
-    '美妆',
-    '家电',
-    '母婴',
-    '服饰',
-    '运动',
-  ];
   List<String> _items = <String>[
     '全部',
     '系统相关',
@@ -135,13 +123,13 @@ class _HomeIndexPageState extends State<HomeIndexPage>
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             await a();
-
-            // print(DatabaseHelper().queryUser());
-            // List<Map<String, Object?>>? map =
-            //     await DatabaseHelper().queryUser();
-            // print(map![0]);
+        
+            // print(DatabaseHelper().queryReadBookTakeDown());
+            List<Map<String, Object?>>? map =
+                await DatabaseHelper().queryReadBookTakeDown();
+            print(map![0]);
           },
-          child: Icon(Icons.add),
+          child: Icon(Icons.search),
         ),
         body: Flex(
           direction: Axis.vertical,

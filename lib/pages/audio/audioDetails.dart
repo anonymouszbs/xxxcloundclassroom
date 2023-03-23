@@ -1,7 +1,9 @@
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:xxxcloundclassroom/libspro/getx_untils.dart';
 import 'package:xxxcloundclassroom/pages/audio/routers/audio_page_id.dart';
@@ -27,7 +29,6 @@ class _AudioBookDetailPage extends State<AudioBookDetailPage>
   void dispose() {
     // TODO: implement dispose
     audioPlayer.dispose();
-    _animationController.dispose();
     
     super.dispose();
   }
@@ -99,9 +100,12 @@ class _AudioBookDetailPage extends State<AudioBookDetailPage>
   }
 
   init() async {
-    await audioPlayer.play(UrlSource(url));
+    await audioPlayer.play(BytesSource(await _loadFromAssets("img/毛泽东思想.m4a")));
   }
-
+Future<Uint8List> _loadFromAssets(String assetName) async {
+    final bytes = await rootBundle.load(assetName);
+    return bytes.buffer.asUint8List();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

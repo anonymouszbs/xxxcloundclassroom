@@ -36,7 +36,7 @@ class DisPlayPage extends StatelessWidget{
         children: [
           Expanded(child: TextPage(ydPage: text,)),
          // SizedBox(width: config.inSizeMargin,),
-          HSpace(config.inSizeMargin-5),
+          HSpace(config.inSizeMargin),
           Expanded(child: TextPage(ydPage: text2,)),
         ],
       );
