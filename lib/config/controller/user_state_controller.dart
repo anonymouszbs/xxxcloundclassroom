@@ -4,9 +4,10 @@ import 'package:xxxcloundclassroom/config/models/user_model.dart';
 import 'package:xxxcloundclassroom/db/databaseHelper.dart';
 import 'package:xxxcloundclassroom/libspro/getx_untils.dart';
 import 'package:xxxcloundclassroom/pages/login/routers/login_page_id.dart';
-import 'package:xxxcloundclassroom/pages/reader/controller/readercontroller.dart';
+
 import 'package:xxxcloundclassroom/utils/common_sp_util.dart';
 
+import '../../pages/reader/controller/controller.dart';
 import '../dataconfig/global_config.dart';
 
 class UserStateController extends GetxController{
@@ -24,7 +25,7 @@ class UserStateController extends GetxController{
 
     CommonSpUtil.saveUserInfo(info: model.toMap());
 
-    await DatabaseHelper().insertUserModel(model);
+   // await DatabaseHelper().insertUserModel(model); d保存登录信息 先注释掉
     _currentUser.value = model;
   }
   //退出登录
@@ -44,8 +45,8 @@ class AllControllerBinding implements Bindings {
       UserStateController(),
       permanent: true,
     );
-    Get.put<ReaderController>(
-      ReaderController(),
+    Get.put<ReadController>(
+      ReadController(),
       permanent: true,
     );
     

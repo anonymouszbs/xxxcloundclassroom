@@ -15,7 +15,6 @@ import 'package:xxxcloundclassroom/libspro/getx_untils.dart';
 import 'package:xxxcloundclassroom/pages/audio/routers/audio_page_id.dart';
 
 import '../../../../utils/utils_tool.dart';
-import '../../../reader/LoadOther.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as parser;
 
@@ -86,12 +85,12 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     });
   }
 
-    Future<Uint8List> _loadFromAssets(String assetName) async {
+  Future<Uint8List> _loadFromAssets(String assetName) async {
     final bytes = await rootBundle.load(assetName);
     return bytes.buffer.asUint8List();
   }
 
-List<String> _paragraphs = [];
+  List<String> _paragraphs = [];
   Map<String, String> _images = {};
   void _parseXHTML(xhtml) {
     dom.Document document = parser.parse(xhtml);
@@ -111,41 +110,31 @@ List<String> _paragraphs = [];
     }
     log(_images.toString());
   }
- a()async{
 
- var textpath = "img/人为何需要音乐.epub";//这是根目录所在路径 不是全目录
+  a() async {
+    var textpath = "img/人为何需要音乐.epub"; //这是根目录所在路径 不是全目录
 
- var truepath = "";
- EpubBook epub = await EpubReader.readBook(_loadFromAssets(textpath));
- truepath  = epub.Schema!.ContentDirectoryPath.toString();
- var unzippath = await Utilstool.unZip(textpath);
- truepath = truepath==""?unzippath:unzippath+"/"+truepath;
+    var truepath = "";
+    EpubBook epub = await EpubReader.readBook(_loadFromAssets(textpath));
+    truepath = epub.Schema!.ContentDirectoryPath.toString();
+    var unzippath = await Utilstool.unZip(textpath);
+    truepath = truepath == "" ? unzippath : unzippath + "/" + truepath;
 
+    var epubBook = epub.Chapters!;
+    //  epubBook.map((e) => print(e.Title)).toList();
+    final content = epubBook[6].HtmlContent!;
 
-var epubBook = epub.Chapters!;
-  //  epubBook.map((e) => print(e.Title)).toList();
-final content = epubBook[6].HtmlContent!;
+    _parseXHTML(content);
 
-_parseXHTML(content);
+    List data = Utilstool.jxxhtml(content);
+  }
 
-
-
-List data = Utilstool.jxxhtml(content);
-
-
-
-
-  
-}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-
-
-await a();
-
+            await a();
 
             // print(DatabaseHelper().queryUser());
             // List<Map<String, Object?>>? map =
@@ -273,29 +262,32 @@ await a();
                                     child: InkWell(
                                         onTap: () {
                                           VocsyEpub.setConfig(
-           themeColor: Theme.of(context).primaryColor,
-           identifier: "iosBook",
-           scrollDirection: EpubScrollDirection.ALLDIRECTIONS,
-           allowSharing: true,
-           enableTts: true,
-           nightMode: true,
-       );
+                                            themeColor:
+                                                Theme.of(context).primaryColor,
+                                            identifier: "iosBook",
+                                            scrollDirection: EpubScrollDirection
+                                                .ALLDIRECTIONS,
+                                            allowSharing: true,
+                                            enableTts: true,
+                                            nightMode: true,
+                                          );
 
 /**
  * @bookPath
  * @lastLocation (optional and only android)
  */
-VocsyEpub.openAsset(
-          'img/人为何需要音乐.epub',
-           lastLocation: EpubLocator.fromJson({
-	   "bookId": "2239",
-	   "href": "/OEBPS/ch06.xhtml",
-	   "created": 1539934158390,
-	   "locations": {
-		"cfi": "epubcfi(/0!/4/4[simple_book]/2/2/6)"
-	          }
-	    }), // first page will open up if the value is null
-        );
+                                          VocsyEpub.openAsset(
+                                            'img/人为何需要音乐.epub',
+                                            lastLocation: EpubLocator.fromJson({
+                                              "bookId": "2239",
+                                              "href": "/OEBPS/ch06.xhtml",
+                                              "created": 1539934158390,
+                                              "locations": {
+                                                "cfi":
+                                                    "epubcfi(/0!/4/4[simple_book]/2/2/6)"
+                                              }
+                                            }), // first page will open up if the value is null
+                                          );
                                           //                     Navigator.push(
                                           // context,
                                           // MaterialPageRoute<dynamic>(
