@@ -2,6 +2,8 @@
 //阅读的配置项目
 import 'dart:convert';
 
+import 'package:get/get.dart';
+
 class DisplayConfig{
   int isSinglePage = 2;
   int isVertical = 0;
@@ -11,11 +13,11 @@ class DisplayConfig{
   double marginBottom = 20;//外边距
 
   double inSizeMargin = 40;//双页的话，页内边距
-  int backgroundColor = 0xfff5f5f5;//阅读背景色
-  double textSize = 25;//正文字体大小
-  int textColor = 0xff000000;//正文字体颜色
+  int backgroundColor = Get.isDarkMode?0xFF555555:0xfff5f5f5;//阅读背景色
+  double textSize = 18;//正文字体大小
+  int textColor = Get.isDarkMode?0xFFFFFFFF:0xff000000;//正文字体颜色
   double titleSize = 24;//标题大小
-  int titleColor = 0xff000000;//标题颜色
+  int titleColor = Get.isDarkMode?0xFFFFFFFF:0xff000000;//标题颜色
   double titleMargin = 0;//标题和正文的间距
   int spaceParagraph = 4;//段落开头空格
 

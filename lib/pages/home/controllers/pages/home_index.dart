@@ -13,6 +13,7 @@ import 'package:xxxcloundclassroom/config/dataconfig/page_id_config.dart';
 import 'package:xxxcloundclassroom/db/databaseHelper.dart';
 import 'package:xxxcloundclassroom/libspro/getx_untils.dart';
 import 'package:xxxcloundclassroom/pages/audio/routers/audio_page_id.dart';
+import 'package:xxxcloundclassroom/pages/reader/controller/controller.dart';
 
 import '../../../../utils/utils_tool.dart';
 import 'package:html/dom.dart' as dom;
@@ -206,6 +207,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
                                       child: InkWell(
                                     onTap: () {
                                       BotToast.showLoading();
+                                      
                                       Future.delayed(
                                           Duration(milliseconds: 500), () {
                                         currentToPage(

@@ -18,7 +18,7 @@ class DisPlayPage extends StatelessWidget{
   Widget build(BuildContext context) {
     var config = DisplayConfig.getDefault();
     return Container(
-      color: Color(config.backgroundColor),
+      
       child: Container(
           padding: EdgeInsets.only(left: config.marginLeft,top: config.marginTop,right: config.marginRight,bottom: config.marginBottom),
           child:_buildTextPage(config)
@@ -36,7 +36,7 @@ class DisPlayPage extends StatelessWidget{
         children: [
           Expanded(child: TextPage(ydPage: text,)),
          // SizedBox(width: config.inSizeMargin,),
-          HSpace(config.inSizeMargin),
+          HSpace(config.inSizeMargin-10),
           Expanded(child: TextPage(ydPage: text2,)),
         ],
       );

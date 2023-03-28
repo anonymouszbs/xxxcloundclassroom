@@ -8,38 +8,52 @@ import 'package:path/path.dart';
 import 'package:xxxcloundclassroom/config/controller/user_state_controller.dart';
 import 'package:xxxcloundclassroom/config/models/readbook_model.dart';
 import 'package:xxxcloundclassroom/config/models/user_model.dart';
+import 'package:xxxcloundclassroom/pages/reader/DisplayConfig.dart';
 
 import '../../../db/databaseHelper.dart';
+import '../reader.dart';
+
 
 class ReadController extends GetxController{
   static ReadController get current => Get.find<ReadController>();
+  GlobalKey<ReaderPageState> readWidgetKey = GlobalKey<ReaderPageState>();
   Rx<String> title = "".obs;
-  Rx<double> fontsize = 25.0.obs;
+  Rx<double> fontsize = DisplayConfig.getDefault().textSize.obs;
   Rx<String> inputText = ''.obs;
   int bookindex  = 0;
   late BuildContext context;
   saveWrite(code)async{
+  if(readWidgetKey.currentState!.topUIisopen == true && readWidgetKey.currentState!.bottomUIisopen == true){
+    readWidgetKey.currentState!.showTopOrBottom();
+  }
   showDialog(
       context: context,
       builder: (BuildContext context) {
       
       return AlertDialog(
-          title: Text('请写下自己的想法'),
+        titlePadding: EdgeInsets.all(0),
+        actionsPadding:EdgeInsets.all(0) ,
+        contentPadding: EdgeInsets.all(0),
+          title: Text('添加笔记'),
           content: TextField(
-            maxLines: 5,
+            maxLines: 4,
             onChanged: (value) {
+              
               inputText.value = value;
             },
           ),
           actions: <Widget>[
-            TextButton(
+           Expanded(child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [ 
+              TextButton(
               child: Text('取消'),
               onPressed: () {
               Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('确定'),
+              child: Text('保存'),
               onPressed: () async{
                 // 在这里进行相应的操作，比如将输入的内容显示出来
                 print('输入的内容为：${inputText.value.toString()}');
@@ -49,6 +63,8 @@ class ReadController extends GetxController{
                Navigator.of(context).pop();
               },
             ),
+            ],
+           ))
           ],
         );
     });}

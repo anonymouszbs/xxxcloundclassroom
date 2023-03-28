@@ -6,6 +6,7 @@ import 'package:xxxcloundclassroom/pages/audio/routers/audio_routers.dart';
 import 'package:xxxcloundclassroom/pages/home/controllers/pages/nav_home_page.dart';
 import 'package:xxxcloundclassroom/pages/home/controllers/routers/home_routers.dart';
 import 'package:xxxcloundclassroom/pages/login/routers/login_routers.dart';
+import 'package:xxxcloundclassroom/pages/reader/controller/controller.dart';
 
 import '../../../pages/reader/reader.dart';
 
@@ -24,7 +25,7 @@ class Routers{
     return [
       GetPage(name: PageIdConfig.home, page: ()=>const NavHomePage()),
       GetPage(name: PageIdConfig.webviewpag, page: ()=>  Container()),
-     GetPage(name: PageIdConfig.readerbookpage, page: ()=> const ReaderPage()),
+     GetPage(name: PageIdConfig.readerbookpage, page: ()=>  ReaderPage(key: ReadController.current.readWidgetKey,)),
       GetPage(name: PageIdConfig.videoplay, page: ()=> const VideoPlayScreen()),
       GetPage(name: PageIdConfig.loadOhter, page: ()=>const ReaderPage())
     ];

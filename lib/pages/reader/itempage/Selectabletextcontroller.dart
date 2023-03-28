@@ -58,6 +58,7 @@ class MyTextSelectionControls extends TextSelectionControls {
     Offset? lastSecondaryTapDownPosition,
   ) {
     return _TextSelectionControlsToolbar(
+      
       globalEditableRegion: globalEditableRegion,
       textLineHeight: textLineHeight,
       selectionMidpoint: selectionMidpoint,
@@ -158,10 +159,12 @@ class _TextSelectionToolbarItemData {
   const _TextSelectionToolbarItemData({
     required this.label,
     required this.onPressed,
+    this.icon
   });
 
   final String label;
   final VoidCallback? onPressed;
+  final Icon? icon;
 }
 
 class _TextSelectionControlsToolbar extends StatefulWidget {
@@ -280,11 +283,33 @@ class _TextSelectionControlsToolbarState
         ),
       if (widget.handlePaste != null &&
           widget.clipboardStatus?.value == ClipboardStatus.pasteable)
+          
         _TextSelectionToolbarItemData(
           label: localizations.pasteButtonLabel,
           onPressed: widget.handlePaste!,
         ),
       if (widget.handleSelectAll != null)
+      _TextSelectionToolbarItemData(
+        label: '红色',
+        icon: Icon(Icons.format_color_text,color: Colors.red,),
+        onPressed: widget.handleLike,
+      ),
+      _TextSelectionToolbarItemData(
+        label: '蓝色',
+        icon: Icon(Icons.format_color_text,color: Colors.blue),
+        onPressed: widget.handleLike,
+      ),
+      _TextSelectionToolbarItemData(
+        label: '绿色',
+        icon: Icon(Icons.format_color_text,color: Colors.green),
+        onPressed: widget.handleLike,
+      ),
+      _TextSelectionToolbarItemData(
+        label: '紫色',
+        icon: Icon(Icons.format_color_text,color: Colors.purple),
+        onPressed: widget.handleLike,
+      ),
+
         _TextSelectionToolbarItemData(
           label: '选择全部',
           onPressed: widget.handleSelectAll!,
@@ -293,6 +318,7 @@ class _TextSelectionControlsToolbarState
         label: '写笔记',
         onPressed: widget.handleLike,
       ),
+      
     ];
 
     // If there is no option available, build an empty widget.
@@ -311,7 +337,7 @@ class _TextSelectionControlsToolbarState
           padding: TextSelectionToolbarTextButton.getPadding(
               entry.key, itemDatas.length),
           onPressed: entry.value.onPressed,
-          child: Text(entry.value.label),
+          child: entry.value.icon!=null?entry.value.icon!:Text(entry.value.label),
         );
       }).toList(),
     );
