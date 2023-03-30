@@ -7,98 +7,30 @@ import 'package:xml/xml.dart';
 import 'package:xxxcloundclassroom/config/controller/user_state_controller.dart';
 import 'package:xxxcloundclassroom/config/dataconfig/page_id_config.dart';
 import 'package:xxxcloundclassroom/pages/login/routers/login_page_id.dart';
+import 'package:xxxcloundclassroom/pages/reader/controller/controller.dart';
 import 'package:xxxcloundclassroom/utils/common_sp_util.dart';
+import 'package:xxxcloundclassroom/utils/sp_util.dart';
 
 
 class Utilstool{
-  //判断为什么操作系统
-
-
-
-
-///加载本地资源
-static loadFromLocal(String path,String type)async{
-  final bytes = await File(path).readAsBytes();
-  switch (type) {
-    case "image":
-      final image = await decodeImageFromList(bytes);
-      return image;
-    case "byte":
-      return bytes.buffer.asUint8List();
-  }
-}
-
-///加载asset资源
-static   loadFromAssets(String assetName,String type) async {
-  final bytes = await rootBundle.load(assetName);
-  switch (type) {
-    case "image":
-      final image = await decodeImageFromList(bytes.buffer.asUint8List());
-      return image;
-    case "byte":
-      return bytes.buffer.asUint8List();
-  }
-    
-    
-  }
-///解压epub
-static unZip(zippath)async{
-   final tempDir = await getTemporaryDirectory();
-  final extractionPath = Directory('${tempDir.path}/extraction/folder');
-  // 如果解压目录不存在，创建它
-  if (!extractionPath.existsSync()) {
-    extractionPath.createSync(recursive: true);
-  }
-  // 读取asset中的zip文件
-  final bytes = await rootBundle.load(zippath);
-  final archive = ZipDecoder().decodeBytes(bytes.buffer.asUint8List());
-  for (final file in archive) {
-    final filePath = '${extractionPath.path}/${file.name}';
-    if (file.isFile) {
-      final data = file.content as List<int>;
-      File(filePath)
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(data);
-    } else {
-      Directory(filePath)..create(recursive: true);
-    }
-  }
-  // 获取解压后的路径
-  final extractedFolderPath = extractionPath.path;
-  return extractedFolderPath;
-}
-
-///解析xhtml
-  static jxxhtml(content){
-    List data = [];
-    List img = [];
-    String p = "";
-  var document = XmlDocument.parse(content);
-  var imgTags = document.findAllElements('img');
   
-  for (var imgTag in imgTags) {
-    final src = imgTag.getAttribute('src');
-    if (src != null) {
-      img.add(src.replaceAll("..", ""));
-    }
-  }
-  document = XmlDocument.parse(content);
-  final textTags = document.descendants.where((node) =>
-      node is XmlElement &&
-      (node.name.local == 'p' ||node.name.local== 'img'||
-          node.name.local.startsWith('h') ||
-          node.name.local == 'li'));
-  for (var textTag in textTags) {
-    final text = textTag.text.trim();
-    if (text.isNotEmpty) {
-      p+=text;
-    }
-  }
-  
-  data = [p,img];
-  return data;
+ ///保存需要划线的字 以后优化删掉本段代码
+ 
+ static const String bokkkey = "保存记录key";
+ 
+ static savebookkey(text)async{
+
+  String str = SpUtil.getString(bokkkey)!;
+  if(str==''){
+    SpUtil.putString(bokkkey, text);
+  }else{
+    SpUtil.putString(bokkkey, "$str|$text");
   }
 
+  ReadController.current.shuaxin();
+ }
+
+ ///判断为什么操作系统
   getOSType(){
     if (Platform.isWindows) {
       return "win";

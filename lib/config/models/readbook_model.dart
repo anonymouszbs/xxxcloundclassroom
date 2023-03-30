@@ -6,10 +6,11 @@ class ReadBookTakeDownModel {
   String? workPermitNum;
   String? bookname;
   String? bookindex;
+  String? bookchapter;
   String? takedown;
   String? bookcontent;
 
-  ReadBookTakeDownModel({this.surname,this.workPermitNum,this.bookname,this.bookindex,this.takedown,this.bookcontent});
+  ReadBookTakeDownModel({this.surname,this.workPermitNum,this.bookname,this.bookindex,this.takedown,this.bookcontent,this.bookchapter});
 
   factory ReadBookTakeDownModel.fromjson(String str)=> ReadBookTakeDownModel.fromMap(json.decode(str));
 
@@ -19,7 +20,8 @@ class ReadBookTakeDownModel {
     bookname: json['bookname'],
     bookindex: json['bookindex'],
     takedown: json['takedown'],
-    bookcontent: json['bookcontent']
+    bookcontent: json['bookcontent'],
+    bookchapter: json['bookchapter']
   );
   
   Map<String,dynamic> toMap() =>{
@@ -29,5 +31,6 @@ class ReadBookTakeDownModel {
     "bookindex":bookindex,
     "takedown":takedown,
     "bookcontent":bookcontent,
+    "bookchapter":bookchapter
   };
 }

@@ -2,6 +2,9 @@
 //阅读的配置项目
 import 'dart:convert';
 
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+
 class DisplayConfig{
   int isSinglePage = 2;
   int isVertical = 0;
@@ -11,15 +14,15 @@ class DisplayConfig{
   double marginBottom = 20;//外边距
 
   double inSizeMargin = 40;//双页的话，页内边距
-  int backgroundColor = 0xfff5f5f5;//阅读背景色
-  double textSize = 25;//正文字体大小
-  int textColor = 0xff000000;//正文字体颜色
+  int backgroundColor = Get.isDarkMode?0xFF555555:0xfff5f5f5;//阅读背景色
+  double textSize = 20;//正文字体大小
+  int textColor = Get.isDarkMode?0xFFFFFFFF:0xff000000;//正文字体颜色
   double titleSize = 24;//标题大小
-  int titleColor = 0xff000000;//标题颜色
+  int titleColor = Get.isDarkMode?0xFFFFFFFF:0xff000000;//标题颜色
   double titleMargin = 0;//标题和正文的间距
-  int spaceParagraph = 4;//段落开头空格
+  int spaceParagraph = 2;//段落开头空格
 
-  double lineSpace = 1.2;//行距
+  double lineSpace =1.5.sp ;//行距+
   int isTitleBold = 1;//标题加粗
   int isTextBold = 0;//正文加粗
   String? fontPath = "";//选择字体

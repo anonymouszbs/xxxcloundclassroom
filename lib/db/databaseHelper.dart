@@ -25,6 +25,7 @@ class DatabaseHelper {
     "workPermitNum" integer NOT NULL,
     "bookname" TEXT NOT NULL,
     "bookindex" INTEGER NOT NULL,
+    "bookchapter" INTEGER NOT NULL,
     "bookcontent" TEXT NOT NULL,
     "takedown" TEXT NOT NULL
   )

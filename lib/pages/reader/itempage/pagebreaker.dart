@@ -116,11 +116,6 @@ class PageBreaker {
         break;
       }
 
-      
-
-     
-      
-
       currentText = overText;
        
     }

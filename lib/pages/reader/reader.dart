@@ -25,19 +25,24 @@ class ReaderPage extends StatefulWidget {
   const ReaderPage({Key? key}) : super(key: key);
 
   @override
-  State<ReaderPage> createState() => _ReaderPageState();
+  State<ReaderPage> createState() => ReaderPageState();
 }
 
-class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
+class ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
   DisplayConfig config = DisplayConfig.getDefault();
   PageController pageController = PageController();
   List<YdPage> page = [];
-  List chapters = [];
+  List<Map<dynamic, List>> chapters = [];
   List index = [];
 
   ///这个是什么不言而喻，就是获取章节对应的页面
   int currentindex = 0;
   int chapterCurrentIndex = 0;
+
+  ///现在所选择的章节
+
+  List currentChapters = []; //记录章节对应数组
+  List currentChapterpages = [];
   //导航
   //阅读器导航小说
   bool topUIisopen = false, bottomUIisopen = false, leftUIisopen = false;
@@ -53,6 +58,11 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
 
   bool showloading = true;
 
+  Size size = Size(ScreenUtil().screenWidth, ScreenUtil().screenHeight);
+  //控制滑动
+  bool neverscroll = false;
+
+  List bol = [];
   @override
   void initState() {
     // TODO: implement initState
@@ -60,28 +70,32 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     BotToast.closeAllLoading();
     initController();
     super.initState();
-    ReadController.current.context =  context;
+    ReadController.current.context = context;
+
+    chapterCurrentIndex = ReadController.current.initChapterIndex;
+    pageController =
+        PageController(initialPage: ReadController.current.initbookindex);
     init();
   }
 
   @override
   void dispose() {
+    ReadController.current.initChapterIndex =
+        chapters[currentindex].values.toList()[0][0];
+
+
+
+    ReadController.current.initbookindex =
+        chapters[currentindex].values.toList()[0][1];
+
     if (_bottomUIopen == true) {
       topUIoverlayEntry.remove();
       bottomUIoverlayEntry.remove();
-      if(_leftUIopen==true){
+      if (_leftUIopen == true) {
         leftUIoverlayEntry.remove();
       }
-      
-
-      // topUIanimationController.dispose();
-      // bottomUIanimationController.dispose();
-      // leftUIanimationController.dispose();
-        
-      
     }
     super.dispose();
-    
   }
 
   initController() {
@@ -103,51 +117,167 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     bookUZpath = await Ctr.gettruepath(
         rootpath: epub.Schema!.ContentDirectoryPath.toString(),
         bookpath: bookpath); //获取解压后的epub真目录
+    ReadController.current.title.value =
+        epub.Chapters![chapterCurrentIndex].Title!;
+    var pagebreake = await Ctr().spilit(size: size,
+        epub: epub.Chapters![chapterCurrentIndex], bookUZpath: bookUZpath);
+    for (var a = 0; a < (pagebreake.length / 2).ceil().toInt(); a++) {
+      int realIndex = a * 2;
+      ReadController.current.bol.add(true);
+      var disPlayPage = Obx(() => DisPlayPage(
+          1,
+          pagebreake[realIndex],
+          realIndex > pagebreake.length - 2 ? null : pagebreake[realIndex + 1],
+          ReadController.current.bol[a]));
 
-    for (var i = 0; i < epub.Chapters!.length; i++) {
-      var pagebreake =
-          await Ctr().spilit(epub: epub.Chapters![i], bookUZpath: bookUZpath);
-
-      for (var a = 0; a < (pagebreake.length / 2).ceil().toInt(); a++) {
-        int realIndex = a * 2;
-        chapters.add(DisPlayPage(
-            1,
-            pagebreake[realIndex],
-            realIndex > pagebreake.length - 2
-                ? null
-                : pagebreake[realIndex + 1]));
-      }
-      index.add(chapters.length);
+      chapters.add({
+        disPlayPage: [chapterCurrentIndex, a]
+      });
     }
-    index.insert(0, 0); //补位
-    ReadController.current.title.value = epub.Chapters![0].Title!;
-    // var pagebreake =
-    //       await Ctr().spilit(epub: epub.Chapters![6], bookUZpath: bookUZpath);
 
-    //   for (var a = 0; a < (pagebreake.length / 2).ceil().toInt(); a++) {
-    //     int realIndex = a * 2;
-    //     chapters.add(DisPlayPage(
-    //         1,
-    //         pagebreake[realIndex],
-    //         realIndex > pagebreake.length - 2
-    //             ? null
-    //             : pagebreake[realIndex + 1]));
-    //   }
+    currentChapters.add(chapterCurrentIndex);
+    currentChapterpages.add(chapters.length);
+
     showloading = false;
 
     setState(() {});
   }
 
-  Future<void> refesh() async {
-    
-    chapters.clear();
-    setState(() {
-      
-    });
-    Future.delayed(Duration(microseconds: 300),()async{
-      index.clear();
-      await init();
-    });
+  //加载上一章节
+  loadPreviewChapter() async {
+    int chapterCurrentIndex1 = currentChapters[0];
+    if (chapterCurrentIndex1 - 1 < 0) {
+      BotToast.showText(text: "已是第一章");
+      return;
+    } else {
+      chapterCurrentIndex1--;
+    }
+
+    var pagebreake = await Ctr().spilit(size: size,
+        epub: epub.Chapters![chapterCurrentIndex1], bookUZpath: bookUZpath);
+
+    List j_chapter = [];
+
+    for (var a = 0; a < (pagebreake.length / 2).ceil().toInt(); a++) {
+      int realIndex = a * 2;
+      ReadController.current.bol.add(true);
+      j_chapter.add(Obx(
+        () => DisPlayPage(
+            1,
+            pagebreake[realIndex],
+            realIndex > pagebreake.length - 2
+                ? null
+                : pagebreake[realIndex + 1],
+            ReadController.current.bol[a]),
+      ));
+    }
+    j_chapter = List.from(j_chapter.reversed);
+
+    for (var i = 0; i < j_chapter.length; i++) {
+      chapters.insert(0, {
+        j_chapter[i]: [chapterCurrentIndex1, i]
+      });
+    }
+
+    currentChapters.insert(0, chapterCurrentIndex1);
+    currentChapterpages.add(chapters.length);
+    currentChapterpages.sort();
+
+    pageController.jumpToPage(j_chapter.length);
+
+    setState(() {});
+  }
+
+  //加载下一章节
+  loadNextChapter() async {
+    int chapterCurrentIndex1 = currentChapters[currentChapters.length - 1];
+    if (chapterCurrentIndex1 + 1 > epub.Chapters!.length) {
+      BotToast.showText(text: "已是最后一章");
+      return;
+    } else {
+      chapterCurrentIndex1++;
+    }
+
+    var pagebreake = await Ctr().spilit(size: size,
+        epub: epub.Chapters![chapterCurrentIndex1], bookUZpath: bookUZpath);
+
+    List j_chapter = [];
+
+    for (var a = 0; a < (pagebreake.length / 2).ceil().toInt(); a++) {
+      int realIndex = a * 2;
+      ReadController.current.bol.add(true);
+      j_chapter.add(Obx(() => DisPlayPage(
+          1,
+          pagebreake[realIndex],
+          realIndex > pagebreake.length - 2 ? null : pagebreake[realIndex + 1],
+          ReadController.current.bol[a])));
+    }
+
+    for (var i = 0; i < j_chapter.length; i++) {
+      chapters.add({
+        j_chapter[i]: [chapterCurrentIndex1, i]
+      });
+    }
+
+    currentChapters.add(chapterCurrentIndex1);
+    currentChapterpages.add(chapters.length);
+    currentChapterpages.sort();
+
+    setState(() {});
+  }
+
+  ///翻页
+  scrollpageListen(p) {
+    currentindex = p;
+    ReadController.current.bookindex = currentindex;
+    final values = chapters[p].values.toList();
+    ReadController.current.title.value = epub.Chapters![values[0][0]].Title!;
+    ReadController.current.currentbookchapterindex = values[0][0];
+    chapterCurrentIndex = values[0][0];
+
+    if (p == 0) {
+      loadPreviewChapter();
+    } else if (p == chapters.length - 1) {
+      loadNextChapter();
+    }
+
+    setState(() {});
+  }
+
+  changeChapter(index) async {
+    currentindex = 0;
+    chapterCurrentIndex = index;
+    await refesh("change");
+    ReadController.current.readWidgetKey.currentState!.showTopOrBottom();
+    if (ReadController.current.readWidgetKey.currentState!.leftUIisopen ==
+        true) {
+      ReadController.current.readWidgetKey.currentState!.showLeftUI(context);
+    }
+  }
+
+  Future<void> refesh(type) async {
+
+    final values = chapters[currentindex].values.toList();
+    var jumptoindex;
+    switch (type) {
+      case "change":
+        jumptoindex = 0;
+        break;
+
+      case "refesh":
+        jumptoindex = values[0][1];
+        break;
+    }
+
+    showloading = true;
+    chapters.clear(); //清空所有内容
+    index.clear(); //清空章节索引
+    currentChapterpages.clear(); //清空记录
+    currentChapters.clear(); //清空记录
+
+    await init();
+
+    pageController.jumpToPage(jumptoindex);
   }
 
   @override
@@ -160,33 +290,83 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
       height: config.lineSpace,
     );
     return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(Icons.add),
+        ),
         body: GestureDetector(
             onTap: () {
               // showLeftUI(context);
+              print("object");
               if (leftUIisopen == true) {
                 showLeftUI(context);
               }
               showTopOrBottom();
             },
-            child: showloading
+            child: chapters.isEmpty
                 ? Center(
                     child: Text("加载中"),
                   )
                 : Stack(
                     children: [
-                      PageView.custom(
-                        scrollDirection: config.isVertical == 1
-                            ? Axis.vertical
-                            : Axis.horizontal,
-                        pageSnapping: config.isVertical != 1,
-                        childrenDelegate:
-                            SliverChildBuilderDelegate(((context, index) {
-                          return chapters[index];
-                        }), childCount: chapters.length),
-                        controller: pageController,
-                        onPageChanged: (i) {
-                          scrollpageListen(i);
-                        },
+                      //  PageView.custom(
+                      //     physics:NeverScrollableScrollPhysics()
+                      //         ,
+                      //     scrollDirection: config.isVertical == 1
+                      //         ? Axis.vertical
+                      //         : Axis.horizontal,
+                      //     pageSnapping: config.isVertical != 1,
+                      //     childrenDelegate:
+                      //         SliverChildBuilderDelegate(((context, index) {
+                      //       var key = chapters[index].keys.toList();
+
+                      //       return key[0];
+                      //     }), childCount: chapters.length),
+                      //     controller: pageController,
+                      //     onPageChanged: (i) {
+                      //       // int now = DateTime.now().millisecondsSinceEpoch;
+                      //       // if (now - lastBackPressedTime > 3000) {
+                      //       //   lastBackPressedTime = now;
+                      //       // } else {
+                      //       //   neverscroll = true;
+                      //       //   BotToast.showText(text: "别翻太快了,三秒后可翻动");
+                      //       //   Future.delayed(Duration(seconds: 3), () {
+                      //       //     neverscroll = false;
+                      //       //     setState(() {});
+                      //       //   });
+                      //       // }
+                      //       scrollpageListen(i);
+                      //     },
+                      //   ),
+                      GestureDetector(
+                        child: PageView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          scrollDirection: config.isVertical == 1
+                              ? Axis.vertical
+                              : Axis.horizontal,
+                          pageSnapping: config.isVertical != 1,
+                          itemBuilder: (context, index) {
+                            var key = chapters[index].keys.toList();
+
+                            return key[0];
+                          },
+                          itemCount: chapters.length,
+                          controller: pageController,
+                          onPageChanged: (i) {
+                            // int now = DateTime.now().millisecondsSinceEpoch;
+                            // if (now - lastBackPressedTime > 3000) {
+                            //   lastBackPressedTime = now;
+                            // } else {
+                            //   neverscroll = true;
+                            //   BotToast.showText(text: "别翻太快了,三秒后可翻动");
+                            //   Future.delayed(Duration(seconds: 3), () {
+                            //     neverscroll = false;
+                            //     setState(() {});
+                            //   });
+                            // }
+                            scrollpageListen(i);
+                          },
+                        ),
                       ),
                       Positioned(
                           right: 5,
@@ -200,10 +380,17 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
                             width: 100,
                             height: ScreenUtil().screenHeight,
                             child: InkWell(
-                              onTap: () {
-                                pageController.previousPage(
-                                    duration: Duration(milliseconds: 300),
-                                    curve: Curves.linear);
+                              onTap: () async {
+                                if (currentindex == 0) {
+                                  await loadPreviewChapter();
+                                  pageController.previousPage(
+                                      duration: Duration(milliseconds: 300),
+                                      curve: Curves.linear);
+                                } else {
+                                  pageController.previousPage(
+                                      duration: Duration(milliseconds: 300),
+                                      curve: Curves.linear);
+                                }
                               },
                             ),
                           )),
@@ -215,47 +402,32 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
                             height: ScreenUtil().screenHeight,
                             child: InkWell(
                               onTap: () {
-
                                 int now = DateTime.now().millisecondsSinceEpoch;
-        if (now - lastBackPressedTime > 2000) {
-          lastBackPressedTime = now;
-
-          pageController.nextPage(
-                                    duration: Duration(milliseconds: 300),
-                                    curve: Curves.linear);
-
-        }else{
-           BotToast.showText(text: "别翻太快了");
-        }
-        
-                               
-                                
+                                if (now - lastBackPressedTime > 2000) {
+                                  lastBackPressedTime = now;
+                                  if (currentindex == chapters.length - 1) {
+                                    loadNextChapter();
+                                  }
+                                  pageController.nextPage(
+                                      duration: Duration(milliseconds: 300),
+                                      curve: Curves.linear);
+                                } else {
+                                  BotToast.showText(text: "别翻太快了");
+                                   pageController.nextPage(
+                                      duration: Duration(milliseconds: 300),
+                                      curve: Curves.linear);
+                                }
                               },
                             ),
                           ))
                     ],
                   )));
   }
-int lastBackPressedTime = 0;
+
+  int lastBackPressedTime = 0;
   showTopOrBottom() {
     showbottomUI(context);
     showtopUI(context);
-  }
-
-  ///翻页
-  scrollpageListen(i) {
-    currentindex = i;
-    print(currentindex);
-    print(index);
-    for (var i = 0; i < index.length; i++) {
-      if (index[i] == currentindex) {
-        ReadController.current.title.value = epub.Chapters![i].Title!;
-        print(ReadController.current.title.value);
-        break;
-      }
-    }
-    ReadController.current.bookindex = currentindex;
-    setState(() {});
   }
 
   showtopUI(context) {
@@ -326,13 +498,6 @@ int lastBackPressedTime = 0;
                   },
                   icon: const Icon(Icons.chevron_left)),
               title: Obx(() => Text(ReadController.current.title.value)),
-              // actions: [
-              //   IconButton(
-              //       onPressed: () {},
-              //       icon: Icon(
-              //           true ? Icons.library_books : Icons.chrome_reader_mode)),
-              //   IconButton(onPressed: () {}, icon: const Icon(Icons.headset))
-              // ],
             ),
             animationController: animationController,
             tab: tab,
@@ -357,55 +522,80 @@ int lastBackPressedTime = 0;
                       icon: const Icon(Icons.edit_attributes_outlined)),
                   IconButton(
                       onPressed: () {
-                        print("object");
-                        if(Get.isDarkMode){
+                        ///切换主题色
+
+                        if (Get.isDarkMode) {
                           Get.changeTheme(ThemeData.light());
-                          config.textColor = 0xff000000;
-                          config.titleColor = 0xff000000;
-                          config.backgroundColor = 0xfff5f5f5;
-                        }else{
+                        } else {
                           Get.changeTheme(ThemeData.dark());
-                          config.textColor = 0xFFFFFFFF;
-                          config.titleColor = 0xFFFFFFFF;
-                          config.backgroundColor = 0xFF555555;
                         }
-                     
-                        refesh();
-                        
                       },
-                      icon:  Icon(Get.isDarkMode?Icons.brightness_4:Icons.brightness_5)),
+                      icon: Icon(Get.isDarkMode
+                          ? Icons.brightness_4
+                          : Icons.brightness_5)),
                   IconButton(
                       onPressed: () {
-                         showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Obx(()=> AlertDialog(
-                  title: Text('字体设置'),
-                  content: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () {
-                          config.textSize > 12 ? config.textSize -= 1.0: config.textSize=12;
-                          ReadController.current.fontsize.value = config.textSize;
-                          refesh();
-                        },
-                        child: Text('-', style: TextStyle(fontSize: 32.0)),
-                      ),
-                      Text(ReadController.current.fontsize.toString(), style: TextStyle(fontSize: 20.0)),
-                      InkWell(
-                        onTap: () {
-                          config.textSize > 12 ? config.textSize += 1.0: config.textSize=12;
-                          ReadController.current.fontsize.value = config.textSize;
-                          refesh();
-                        },
-                        child: Text('+', style: TextStyle(fontSize: 32.0)),
-                      ),
-                    ],
-                  ),
-                ));
-              },
-            );
+                        BotToast.showAnimationWidget(
+                            toastBuilder: (c) {
+                              return AlertDialog(
+                                title: Text('字体设置'),
+                                content: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: InkWell(
+                                          onTap: () {
+                                            config.textSize = 22;
+                                            refesh("refesh");
+                                            c();
+                                          },
+                                          child: Icon(
+                                            Icons.text_format,
+                                            size: 30,
+                                          )),
+                                    ),
+                                    Expanded(
+                                      child: InkWell(
+                                          onTap: () {
+                                            config.textSize = 18;
+                                            refesh("refesh");
+                                            c();
+                                          },
+                                          child: Icon(
+                                            Icons.text_format,
+                                            size: 25,
+                                          )),
+                                    ),
+                                    Expanded(
+                                      child: InkWell(
+                                          onTap: () {
+                                            config.textSize = 16;
+                                            refesh("refesh");
+                                            c();
+                                          },
+                                          child: Icon(
+                                            Icons.text_format,
+                                            size: 20,
+                                          )),
+                                    ),
+                                    Expanded(
+                                      child: InkWell(
+                                          onTap: () {
+                                            config.textSize = 12;
+                                            refesh("refesh");
+                                            c();
+                                          },
+                                          child: Icon(
+                                            Icons.text_format,
+                                            size: 18,
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            animationDuration: Duration(milliseconds: 300));
                       },
                       icon: const Icon(Icons.translate_outlined)),
                 ],
@@ -428,8 +618,8 @@ int lastBackPressedTime = 0;
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                     onTap: () {
-                      pageController.jumpToPage(this.index[index]);
-                      //跳转章节
+                      ///切换章节
+                      changeChapter(index);
                     },
                     child: ListTile(
                       title: Text(epub
@@ -471,11 +661,10 @@ class Ctr {
   }
 
   Future<List<YdPage>> spilit(
-      {required EpubChapter epub, required bookUZpath}) async {
+      {required EpubChapter epub, required bookUZpath,required size}) async {
     String content = epub.HtmlContent!;
     List<String> image = await getimageList(content, bookUZpath);
 
-    log(image.toString());
     content = AnalyzerHtml.getHtmlString(content).replaceAll("\n\n", "\n");
     content =
         content.replaceAllMapped(RegExp(r'<img\s+[^>]*>'), (match) => "☏");
@@ -484,7 +673,7 @@ class Ctr {
             generateTitleTextSpan(epub.Title!),
             generateContentTextSpan(content),
             generateTextPageSize(
-                Size(ScreenUtil().screenWidth, ScreenUtil().screenHeight)),
+                size),
             image)
         .splitPage();
     log(str.length.toString());
@@ -553,7 +742,8 @@ class Ctr {
     } else {
       //双页
       return Size(
-          (textPageSize.width - config.inSizeMargin) / 2, textPageSize.height);
+          ((textPageSize.width - config.inSizeMargin) / 2).floorToDouble(),
+          textPageSize.height);
     }
   }
 

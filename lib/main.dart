@@ -24,6 +24,10 @@ runZonedGuarded(
 init() async{
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([]);
+  SystemChrome.setPreferredOrientations([
+     DeviceOrientation.landscapeLeft,
+     DeviceOrientation.landscapeRight
+   ]);
   await GloblConfig.init();
   runApp( Application());
 }

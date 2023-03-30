@@ -13,6 +13,7 @@ import 'package:xxxcloundclassroom/config/dataconfig/page_id_config.dart';
 import 'package:xxxcloundclassroom/db/databaseHelper.dart';
 import 'package:xxxcloundclassroom/libspro/getx_untils.dart';
 import 'package:xxxcloundclassroom/pages/audio/routers/audio_page_id.dart';
+import 'package:xxxcloundclassroom/pages/reader/controller/controller.dart';
 
 import '../../../../utils/utils_tool.dart';
 import 'package:html/dom.dart' as dom;
@@ -99,35 +100,18 @@ class _HomeIndexPageState extends State<HomeIndexPage>
     log(_images.toString());
   }
 
-  a() async {
-    var textpath = "img/人为何需要音乐.epub"; //这是根目录所在路径 不是全目录
-
-    var truepath = "";
-    EpubBook epub = await EpubReader.readBook(_loadFromAssets(textpath));
-    truepath = epub.Schema!.ContentDirectoryPath.toString();
-    var unzippath = await Utilstool.unZip(textpath);
-    truepath = truepath == "" ? unzippath : unzippath + "/" + truepath;
-
-    var epubBook = epub.Chapters!;
-    //  epubBook.map((e) => print(e.Title)).toList();
-    final content = epubBook[6].HtmlContent!;
-
-    _parseXHTML(content);
-
-    List data = Utilstool.jxxhtml(content);
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            await a();
+           
         
             // print(DatabaseHelper().queryReadBookTakeDown());
             List<Map<String, Object?>>? map =
-                await DatabaseHelper().queryReadBookTakeDown();
-            print(map![0]);
+                await DatabaseHelper().queryUser();
+            print(json.encode(map![0]));
           },
           child: Icon(Icons.search),
         ),
@@ -206,6 +190,7 @@ class _HomeIndexPageState extends State<HomeIndexPage>
                                       child: InkWell(
                                     onTap: () {
                                       BotToast.showLoading();
+                                      
                                       Future.delayed(
                                           Duration(milliseconds: 500), () {
                                         currentToPage(

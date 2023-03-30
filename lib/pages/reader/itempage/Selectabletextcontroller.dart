@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:xxxcloundclassroom/pages/reader/controller/controller.dart';
+import 'package:xxxcloundclassroom/utils/utils_tool.dart';
+
 const double _kHandleSize = 22.0;
 
 // Padding between the toolbar and the anchor.
@@ -70,17 +72,14 @@ class MyTextSelectionControls extends TextSelectionControls {
       handleSelectAll:
           canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
       handleLike: () {
+        final TextEditingValue value = delegate.textEditingValue;
+        String data = value.selection.textInside(value.text);
+        // remove zeroWidthSpace
+        if (joinZeroWidthSpace) {
+          data = data.replaceAll(zeroWidthSpace, '');
+        }
+        ReadController.current.saveWrite(data);
 
-          final TextEditingValue value = delegate.textEditingValue;
-
-    String data = value.selection.textInside(value.text);
-    // remove zeroWidthSpace
-    if (joinZeroWidthSpace) {
-      data = data.replaceAll(zeroWidthSpace, '');
-
-    }
-ReadController.current.saveWrite(data);
-        
         // launchUrl(Uri.parse(
         //     'mailto:zmtzawqlp@live.com?subject=extended_text_share&body=${delegate.textEditingValue.text}'));
         delegate.hideToolbar();
@@ -89,6 +88,16 @@ ReadController.current.saveWrite(data);
               .copyWith(selection: const TextSelection.collapsed(offset: 0)),
           SelectionChangedCause.toolbar,
         );
+      },
+      textlineationsave: ()async {
+        final TextEditingValue value = delegate.textEditingValue;
+        String data = value.selection.textInside(value.text);
+        // remove zeroWidthSpace
+        if (joinZeroWidthSpace) {
+          data = data.replaceAll(zeroWidthSpace, '');
+        }
+        await Utilstool.savebookkey(data);
+        delegate.hideToolbar();
       },
     );
   }
@@ -155,16 +164,17 @@ ReadController.current.saveWrite(data);
 
 // The label and callback for the available default text selection menu buttons.
 class _TextSelectionToolbarItemData {
-  const _TextSelectionToolbarItemData({
-    required this.label,
-    required this.onPressed,
-  });
+  const _TextSelectionToolbarItemData(
+      {required this.label, required this.onPressed, this.icon});
 
   final String label;
   final VoidCallback? onPressed;
+  final Icon? icon;
 }
 
 class _TextSelectionControlsToolbar extends StatefulWidget {
+  
+
   const _TextSelectionControlsToolbar({
     required this.clipboardStatus,
     required this.delegate,
@@ -177,6 +187,7 @@ class _TextSelectionControlsToolbar extends StatefulWidget {
     required this.selectionMidpoint,
     required this.textLineHeight,
     required this.handleLike,
+    required this.textlineationsave,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
@@ -190,6 +201,7 @@ class _TextSelectionControlsToolbar extends StatefulWidget {
   final VoidCallback? handleLike;
   final Offset selectionMidpoint;
   final double textLineHeight;
+  final  VoidCallback? textlineationsave;
 
   @override
   _TextSelectionControlsToolbarState createState() =>
@@ -286,9 +298,32 @@ class _TextSelectionControlsToolbarState
         ),
       if (widget.handleSelectAll != null)
         _TextSelectionToolbarItemData(
-          label: '选择全部',
-          onPressed: widget.handleSelectAll!,
+          label: '红色',
+          icon: Icon(
+            Icons.format_color_text,
+            color: Colors.red,
+          ),
+          onPressed: widget.textlineationsave,
         ),
+      _TextSelectionToolbarItemData(
+        label: '蓝色',
+        icon: Icon(Icons.format_color_text, color: Colors.blue),
+        onPressed: widget.handleLike,
+      ),
+      _TextSelectionToolbarItemData(
+        label: '绿色',
+        icon: Icon(Icons.format_color_text, color: Colors.green),
+        onPressed: widget.handleLike,
+      ),
+      _TextSelectionToolbarItemData(
+        label: '紫色',
+        icon: Icon(Icons.format_color_text, color: Colors.purple),
+        onPressed: widget.handleLike,
+      ),
+      _TextSelectionToolbarItemData(
+        label: '选择全部',
+        onPressed: widget.handleSelectAll!,
+      ),
       _TextSelectionToolbarItemData(
         label: '写笔记',
         onPressed: widget.handleLike,
@@ -311,7 +346,9 @@ class _TextSelectionControlsToolbarState
           padding: TextSelectionToolbarTextButton.getPadding(
               entry.key, itemDatas.length),
           onPressed: entry.value.onPressed,
-          child: Text(entry.value.label),
+          child: entry.value.icon != null
+              ? entry.value.icon!
+              : Text(entry.value.label),
         );
       }).toList(),
     );
